@@ -56,10 +56,130 @@ export class AudioEngine {
 
     private songPosition: number = 0; // In steps, relative to the whole arrangement
 
+    // Professional Effects Chain
+    private masterCompressor: DynamicsCompressorNode;
+    private masterReverb: ConvolverNode;
+    private masterDelay: DelayNode;
+    private delayFeedback: GainNode;
+    private reverbMix: GainNode;
+    private delayMix: GainNode;
+    private dryGain: GainNode;
+    private masterFilter: BiquadFilterNode;
+    private masterLimiter: DynamicsCompressorNode;
+    private masterGain: GainNode;
+
     constructor(audioContext: AudioContext, getState: () => StoreState, sampleBuffers: Map<string, AudioBuffer>) {
         this.audioContext = audioContext;
         this.getState = getState;
         this.sampleBuffers = sampleBuffers;
+
+        // Initialize professional master effects chain
+        this.initializeMasterEffects();
+    }
+
+    private initializeMasterEffects() {
+        // Master Compressor (glues everything together)
+        this.masterCompressor = this.audioContext.createDynamicsCompressor();
+        this.masterCompressor.threshold.value = -24;
+        this.masterCompressor.knee.value = 30;
+        this.masterCompressor.ratio.value = 3;
+        this.masterCompressor.attack.value = 0.003;
+        this.masterCompressor.release.value = 0.25;
+
+        // Reverb setup
+        this.masterReverb = this.audioContext.createConvolver();
+        this.masterReverb.buffer = this.createReverbImpulse(2, 2.5, false);
+        this.reverbMix = this.audioContext.createGain();
+        this.reverbMix.gain.value = 0.15; // 15% wet
+
+        // Delay setup (eighth note delay)
+        this.masterDelay = this.audioContext.createDelay(5.0);
+        this.masterDelay.delayTime.value = 0.375; // Will be tempo-synced
+        this.delayFeedback = this.audioContext.createGain();
+        this.delayFeedback.gain.value = 0.3;
+        this.delayMix = this.audioContext.createGain();
+        this.delayMix.gain.value = 0.2; // 20% wet
+
+        // Dry signal
+        this.dryGain = this.audioContext.createGain();
+        this.dryGain.gain.value = 0.7;
+
+        // Master Filter (for creative sweeps)
+        this.masterFilter = this.audioContext.createBiquadFilter();
+        this.masterFilter.type = 'lowpass';
+        this.masterFilter.frequency.value = 20000; // Fully open by default
+        this.masterFilter.Q.value = 1;
+
+        // Master Limiter (prevents clipping)
+        this.masterLimiter = this.audioContext.createDynamicsCompressor();
+        this.masterLimiter.threshold.value = -3;
+        this.masterLimiter.knee.value = 0;
+        this.masterLimiter.ratio.value = 20;
+        this.masterLimiter.attack.value = 0.001;
+        this.masterLimiter.release.value = 0.1;
+
+        // Master Gain
+        this.masterGain = this.audioContext.createGain();
+        this.masterGain.gain.value = 0.8;
+
+        // Connect delay feedback loop
+        this.masterDelay.connect(this.delayFeedback);
+        this.delayFeedback.connect(this.masterDelay);
+
+        // Connect effects chain:
+        // dry -> compressor
+        // compressor -> reverb -> reverbMix
+        // compressor -> delay -> delayMix
+        // reverbMix + delayMix + dryGain -> filter -> limiter -> master gain -> destination
+        this.masterCompressor.connect(this.masterReverb);
+        this.masterReverb.connect(this.reverbMix);
+
+        this.masterCompressor.connect(this.masterDelay);
+        this.masterDelay.connect(this.delayMix);
+
+        this.masterCompressor.connect(this.dryGain);
+
+        this.reverbMix.connect(this.masterFilter);
+        this.delayMix.connect(this.masterFilter);
+        this.dryGain.connect(this.masterFilter);
+
+        this.masterFilter.connect(this.masterLimiter);
+        this.masterLimiter.connect(this.masterGain);
+        this.masterGain.connect(this.audioContext.destination);
+    }
+
+    private createReverbImpulse(duration: number, decay: number, reverse: boolean = false): AudioBuffer {
+        const sampleRate = this.audioContext.sampleRate;
+        const length = sampleRate * duration;
+        const impulse = this.audioContext.createBuffer(2, length, sampleRate);
+        const impulseL = impulse.getChannelData(0);
+        const impulseR = impulse.getChannelData(1);
+
+        for (let i = 0; i < length; i++) {
+            const n = reverse ? length - i : i;
+            impulseL[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+            impulseR[i] = (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+        }
+        return impulse;
+    }
+
+    public setReverbAmount(amount: number) {
+        this.reverbMix.gain.setValueAtTime(amount, this.audioContext.currentTime);
+    }
+
+    public setDelayAmount(amount: number) {
+        this.delayMix.gain.setValueAtTime(amount, this.audioContext.currentTime);
+    }
+
+    public setDelayTime(beats: number) {
+        const tempo = this.getState().tempo;
+        const delayTime = (60 / tempo) * beats;
+        this.masterDelay.delayTime.setValueAtTime(delayTime, this.audioContext.currentTime);
+    }
+
+    public setMasterFilter(frequency: number, q: number = 1) {
+        this.masterFilter.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+        this.masterFilter.Q.value = q;
     }
 
     private scheduleNote(step: number, time: number) {
@@ -127,7 +247,7 @@ export class AudioEngine {
 
         source.connect(gainNode);
         gainNode.connect(pannerNode);
-        pannerNode.connect(this.audioContext.destination);
+        pannerNode.connect(this.masterCompressor);
         source.start(time);
     }
     
@@ -149,7 +269,7 @@ export class AudioEngine {
 
         osc.connect(gainNode);
         gainNode.connect(pannerNode);
-        pannerNode.connect(this.audioContext.destination);
+        pannerNode.connect(this.masterCompressor);
 
         let duration = 0.1;
         let playOsc = true;
@@ -428,7 +548,7 @@ export class AudioEngine {
                     osc2.connect(filter);
                     filter.connect(gainNode);
                     gainNode.connect(pannerNode);
-                    pannerNode.connect(this.audioContext.destination);
+                    pannerNode.connect(this.masterCompressor);
                     osc1.start(time);
                     osc2.start(time);
                     osc1.stop(time + duration);
@@ -586,7 +706,7 @@ export class AudioEngine {
                     osc1.connect(gainNode);
                     osc2.connect(gainNode);
                     gainNode.connect(pannerNode);
-                    pannerNode.connect(this.audioContext.destination);
+                    pannerNode.connect(this.masterCompressor);
                     osc1.start(time);
                     osc2.start(time);
                     osc1.stop(time + duration);
@@ -666,7 +786,7 @@ export class AudioEngine {
         }
         lastNode.connect(gainNode);
         gainNode.connect(pannerNode);
-        pannerNode.connect(this.audioContext.destination);
+        pannerNode.connect(this.masterCompressor);
         noiseSource.start(time);
         noiseSource.stop(time + duration);
     }

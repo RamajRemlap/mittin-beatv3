@@ -60,21 +60,91 @@ export const INSTRUMENTS: Record<string, Instrument> = {
   // Sampled Vocals - NEW
   CHOIR_SAMPLED: { id: 'choir_sampled', name: 'Sampled Choir' },
   OPERA_SAMPLED: { id: 'opera_sampled', name: 'Sampled Opera' },
+
+  // === SUPER UPGRADE: 40+ NEW INSTRUMENTS ===
+
+  // Advanced Electronic Synths
+  FM_BASS: { id: 'fm_bass', name: 'FM Bass' },
+  REESE_BASS: { id: 'reese_bass', name: 'Reese Bass' },
+  WOBBLE_BASS: { id: 'wobble_bass', name: 'Wobble Bass' },
+  PLUCK_SYNTH: { id: 'pluck_synth', name: 'Pluck Synth' },
+  SUPER_SAW: { id: 'super_saw', name: 'Super Saw' },
+  FM_BELL: { id: 'fm_bell', name: 'FM Bell' },
+  WAVETABLE_LEAD: { id: 'wavetable_lead', name: 'Wavetable Lead' },
+  DETUNED_SAW: { id: 'detuned_saw', name: 'Detuned Saw' },
+
+  // Brass Section
+  TRUMPET: { id: 'trumpet', name: 'Trumpet' },
+  TROMBONE: { id: 'trombone', name: 'Trombone' },
+  BRASS_SECTION: { id: 'brass_section', name: 'Brass Section' },
+  TUBA: { id: 'tuba', name: 'Tuba' },
+  SAXOPHONE: { id: 'saxophone', name: 'Saxophone' },
+
+  // Woodwinds
+  FLUTE: { id: 'flute', name: 'Flute' },
+  CLARINET: { id: 'clarinet', name: 'Clarinet' },
+  OBOE: { id: 'oboe', name: 'Oboe' },
+  BASSOON: { id: 'bassoon', name: 'Bassoon' },
+
+  // Orchestral Percussion
+  GLOCKENSPIEL: { id: 'glockenspiel', name: 'Glockenspiel' },
+  XYLOPHONE: { id: 'xylophone', name: 'Xylophone' },
+  MARIMBA: { id: 'marimba', name: 'Marimba' },
+  VIBRAPHONE: { id: 'vibraphone', name: 'Vibraphone' },
+  TUBULAR_BELLS: { id: 'tubular_bells', name: 'Tubular Bells' },
+
+  // World Instruments
+  SITAR: { id: 'sitar', name: 'Sitar' },
+  KOTO: { id: 'koto', name: 'Koto' },
+  SHAMISEN: { id: 'shamisen', name: 'Shamisen' },
+  TABLA: { id: 'tabla', name: 'Tabla' },
+  DJEMBE: { id: 'djembe', name: 'Djembe' },
+  STEELPAN: { id: 'steelpan', name: 'Steelpan' },
+  KALIMBA: { id: 'kalimba', name: 'Kalimba' },
+
+  // Guitar Variants
+  GUITAR_CLEAN: { id: 'guitar_clean', name: 'Clean Guitar' },
+  GUITAR_ACOUSTIC: { id: 'guitar_acoustic', name: 'Acoustic Guitar' },
+  BASS_SLAP: { id: 'bass_slap', name: 'Slap Bass' },
+  BASS_FINGER: { id: 'bass_finger', name: 'Fingered Bass' },
+
+  // Atmospheric & Textures
+  PAD_WARM: { id: 'pad_warm', name: 'Warm Pad' },
+  PAD_DARK: { id: 'pad_dark', name: 'Dark Pad' },
+  PAD_METALLIC: { id: 'pad_metallic', name: 'Metallic Pad' },
+  AMBIENT_WASH: { id: 'ambient_wash', name: 'Ambient Wash' },
+  NOISE_SWEEP: { id: 'noise_sweep', name: 'Noise Sweep' },
+
+  // Electronic Drums
+  KICK_909: { id: 'kick_909', name: '909 Kick' },
+  SNARE_909: { id: 'snare_909', name: '909 Snare' },
+  CLAP_909: { id: 'clap_909', name: '909 Clap' },
+  HAT_909: { id: 'hat_909', name: '909 Hat' },
+  RIMSHOT: { id: 'rimshot', name: 'Rimshot' },
+  COWBELL: { id: 'cowbell', name: 'Cowbell' },
+  CLAVE: { id: 'clave', name: 'Clave' },
+
+  // Keyboard Instruments
+  ELECTRIC_PIANO: { id: 'electric_piano', name: 'Electric Piano' },
+  CLAVINET: { id: 'clavinet', name: 'Clavinet' },
+  CELESTA: { id: 'celesta', name: 'Celesta' },
+  ORGAN_CHURCH: { id: 'organ_church', name: 'Church Organ' },
+  ORGAN_HAMMOND: { id: 'organ_hammond', name: 'Hammond Organ' },
 };
 
 export const INITIAL_TRACKS: Track[] = [
-  { id: 'kick', name: 'Kick', volume: 1, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.KICK_808, INSTRUMENTS.KICK_GRIT, INSTRUMENTS.KICK_ROCK, INSTRUMENTS.KICK_TRAP], activeInstrumentId: INSTRUMENTS.KICK_808.id, midiNote: 36 },
-  { id: 'snare', name: 'Snare', volume: 0.9, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.SNARE_808, INSTRUMENTS.SNARE_NOISY, INSTRUMENTS.SNARE_ROCK, INSTRUMENTS.SNARE_TRAP], activeInstrumentId: INSTRUMENTS.SNARE_808.id, midiNote: 38 },
-  { id: 'clap', name: 'Clap', volume: 0.8, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.CLAP_808, INSTRUMENTS.ORCH_HIT], activeInstrumentId: INSTRUMENTS.CLAP_808.id, midiNote: 39 },
-  { id: 'hat', name: 'Hi-Hat', volume: 0.7, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.HAT_CLOSED, INSTRUMENTS.HAT_GRIT, INSTRUMENTS.HAT_TRAP], activeInstrumentId: INSTRUMENTS.HAT_CLOSED.id, midiNote: 42 },
+  { id: 'kick', name: 'Kick', volume: 1, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.KICK_808, INSTRUMENTS.KICK_GRIT, INSTRUMENTS.KICK_ROCK, INSTRUMENTS.KICK_TRAP, INSTRUMENTS.KICK_909], activeInstrumentId: INSTRUMENTS.KICK_808.id, midiNote: 36 },
+  { id: 'snare', name: 'Snare', volume: 0.9, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.SNARE_808, INSTRUMENTS.SNARE_NOISY, INSTRUMENTS.SNARE_ROCK, INSTRUMENTS.SNARE_TRAP, INSTRUMENTS.SNARE_909], activeInstrumentId: INSTRUMENTS.SNARE_808.id, midiNote: 38 },
+  { id: 'clap', name: 'Clap', volume: 0.8, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.CLAP_808, INSTRUMENTS.CLAP_909, INSTRUMENTS.ORCH_HIT, INSTRUMENTS.RIMSHOT], activeInstrumentId: INSTRUMENTS.CLAP_808.id, midiNote: 39 },
+  { id: 'hat', name: 'Hi-Hat', volume: 0.7, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.HAT_CLOSED, INSTRUMENTS.HAT_GRIT, INSTRUMENTS.HAT_TRAP, INSTRUMENTS.HAT_909, INSTRUMENTS.CLAVE, INSTRUMENTS.COWBELL], activeInstrumentId: INSTRUMENTS.HAT_CLOSED.id, midiNote: 42 },
   { id: 'openhat', name: 'Open Hat', volume: 0.7, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.HAT_OPEN], activeInstrumentId: INSTRUMENTS.HAT_OPEN.id, midiNote: 46 },
-  { id: 'perc', name: 'Perc', volume: 0.8, pan: 0.2, mute: false, solo: false, instruments: [INSTRUMENTS.PERC_HIT, INSTRUMENTS.TIMPANI], activeInstrumentId: INSTRUMENTS.PERC_HIT.id, midiNote: 45 },
-  { id: 'bass', name: '808 Bass', volume: 1, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.BASS_808, INSTRUMENTS.BASS_SAW, INSTRUMENTS.BASS_SUB, INSTRUMENTS.BASS_808_SAMPLED], activeInstrumentId: INSTRUMENTS.BASS_808.id },
-  { id: 'melody', name: 'Melody', volume: 0.7, pan: -0.1, mute: false, solo: false, instruments: [INSTRUMENTS.MELODY_TRIANGLE, INSTRUMENTS.MELODY_SAW, INSTRUMENTS.PIANO_GRAND, INSTRUMENTS.MANDOLIN_TREMOLO, INSTRUMENTS.HARPSICHORD], activeInstrumentId: INSTRUMENTS.MELODY_TRIANGLE.id },
-  { id: 'strings', name: 'Strings', volume: 0.6, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.STRINGS_LEGATO, INSTRUMENTS.VIOLIN_SECTION, INSTRUMENTS.FRENCH_HORN], activeInstrumentId: INSTRUMENTS.STRINGS_LEGATO.id },
-  { id: 'pad', name: 'Pad', volume: 0.5, pan: 0.1, mute: false, solo: false, instruments: [INSTRUMENTS.PAD_SINE, INSTRUMENTS.OPERA_VOCAL, INSTRUMENTS.CHOIR_AAHS, INSTRUMENTS.FILTER_SWEEP_PAD, INSTRUMENTS.CHOIR_SAMPLED, INSTRUMENTS.OPERA_SAMPLED], activeInstrumentId: INSTRUMENTS.PAD_SINE.id },
-  { id: 'arp', name: 'Arp', volume: 0.6, pan: -0.2, mute: false, solo: false, instruments: [INSTRUMENTS.ARP_TRIANGLE], activeInstrumentId: INSTRUMENTS.ARP_TRIANGLE.id },
-  { id: 'lead', name: 'Lead', volume: 0.7, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.LEAD_SAW, INSTRUMENTS.LEAD_SQUARE, INSTRUMENTS.GUITAR_DISTORTED], activeInstrumentId: INSTRUMENTS.LEAD_SAW.id },
+  { id: 'perc', name: 'Perc', volume: 0.8, pan: 0.2, mute: false, solo: false, instruments: [INSTRUMENTS.PERC_HIT, INSTRUMENTS.TIMPANI, INSTRUMENTS.TABLA, INSTRUMENTS.DJEMBE, INSTRUMENTS.MARIMBA, INSTRUMENTS.XYLOPHONE, INSTRUMENTS.GLOCKENSPIEL, INSTRUMENTS.VIBRAPHONE], activeInstrumentId: INSTRUMENTS.PERC_HIT.id, midiNote: 45 },
+  { id: 'bass', name: '808 Bass', volume: 1, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.BASS_808, INSTRUMENTS.BASS_SAW, INSTRUMENTS.BASS_SUB, INSTRUMENTS.BASS_808_SAMPLED, INSTRUMENTS.FM_BASS, INSTRUMENTS.REESE_BASS, INSTRUMENTS.WOBBLE_BASS, INSTRUMENTS.BASS_SLAP, INSTRUMENTS.BASS_FINGER, INSTRUMENTS.TUBA], activeInstrumentId: INSTRUMENTS.BASS_808.id },
+  { id: 'melody', name: 'Melody', volume: 0.7, pan: -0.1, mute: false, solo: false, instruments: [INSTRUMENTS.MELODY_TRIANGLE, INSTRUMENTS.MELODY_SAW, INSTRUMENTS.PIANO_GRAND, INSTRUMENTS.MANDOLIN_TREMOLO, INSTRUMENTS.HARPSICHORD, INSTRUMENTS.ELECTRIC_PIANO, INSTRUMENTS.PLUCK_SYNTH, INSTRUMENTS.FM_BELL, INSTRUMENTS.KALIMBA, INSTRUMENTS.STEELPAN, INSTRUMENTS.KOTO, INSTRUMENTS.SITAR], activeInstrumentId: INSTRUMENTS.MELODY_TRIANGLE.id },
+  { id: 'strings', name: 'Strings', volume: 0.6, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.STRINGS_LEGATO, INSTRUMENTS.VIOLIN_SECTION, INSTRUMENTS.FRENCH_HORN, INSTRUMENTS.TRUMPET, INSTRUMENTS.TROMBONE, INSTRUMENTS.BRASS_SECTION, INSTRUMENTS.SAXOPHONE, INSTRUMENTS.FLUTE, INSTRUMENTS.CLARINET, INSTRUMENTS.OBOE], activeInstrumentId: INSTRUMENTS.STRINGS_LEGATO.id },
+  { id: 'pad', name: 'Pad', volume: 0.5, pan: 0.1, mute: false, solo: false, instruments: [INSTRUMENTS.PAD_SINE, INSTRUMENTS.OPERA_VOCAL, INSTRUMENTS.CHOIR_AAHS, INSTRUMENTS.FILTER_SWEEP_PAD, INSTRUMENTS.CHOIR_SAMPLED, INSTRUMENTS.OPERA_SAMPLED, INSTRUMENTS.PAD_WARM, INSTRUMENTS.PAD_DARK, INSTRUMENTS.PAD_METALLIC, INSTRUMENTS.AMBIENT_WASH, INSTRUMENTS.ORGAN_CHURCH, INSTRUMENTS.ORGAN_HAMMOND], activeInstrumentId: INSTRUMENTS.PAD_SINE.id },
+  { id: 'arp', name: 'Arp', volume: 0.6, pan: -0.2, mute: false, solo: false, instruments: [INSTRUMENTS.ARP_TRIANGLE, INSTRUMENTS.CLAVINET, INSTRUMENTS.CELESTA, INSTRUMENTS.TUBULAR_BELLS], activeInstrumentId: INSTRUMENTS.ARP_TRIANGLE.id },
+  { id: 'lead', name: 'Lead', volume: 0.7, pan: 0, mute: false, solo: false, instruments: [INSTRUMENTS.LEAD_SAW, INSTRUMENTS.LEAD_SQUARE, INSTRUMENTS.GUITAR_DISTORTED, INSTRUMENTS.SUPER_SAW, INSTRUMENTS.WAVETABLE_LEAD, INSTRUMENTS.DETUNED_SAW, INSTRUMENTS.GUITAR_CLEAN, INSTRUMENTS.GUITAR_ACOUSTIC], activeInstrumentId: INSTRUMENTS.LEAD_SAW.id },
 ];
 
 export const PRESETS: Preset[] = [

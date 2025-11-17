@@ -46,6 +46,14 @@ export interface SongSection {
   pattern: Pattern;
 }
 
+export interface EffectsState {
+  reverbAmount: number;
+  delayAmount: number;
+  delayTime: number; // in beats
+  filterFrequency: number;
+  filterQ: number;
+}
+
 export interface StoreState {
   isPlaying: boolean;
   tempo: number;
@@ -59,6 +67,9 @@ export interface StoreState {
   soundKits: SoundKit[];
   activeKitId: string;
 
+  // Master Effects State
+  effects: EffectsState;
+
   setTempo: (tempo: number) => void;
   setSwing: (swing: number) => void;
   setSectionBars: (sectionId: string, bars: number) => void;
@@ -66,21 +77,28 @@ export interface StoreState {
   addSection: (name: string, bars: number) => void;
   duplicateSection: (sectionId: string) => void;
   deleteSection: (sectionId: string) => void;
-  
+
   toggleStep: (trackIndex: number, stepIndex: number) => void;
   setTrackVolume: (trackIndex: number, volume: number) => void;
   setTrackPan: (trackIndex: number, pan: number) => void;
   setTrackInstrument: (trackIndex: number, instrumentId: string) => void;
   toggleTrackMute: (trackIndex: number) => void;
   toggleTrackSolo: (trackIndex: number) => void;
-  
+
   startPlayback: () => void;
   stopPlayback: () => void;
   togglePlayback: () => void;
-  
+
   applyPreset: (presetId: string) => void;
   clearActivePattern: () => void;
   setSoundKit: (kitId: string) => void;
+
+  // Effects Controls
+  setReverbAmount: (amount: number) => void;
+  setDelayAmount: (amount: number) => void;
+  setDelayTime: (time: number) => void;
+  setFilterFrequency: (frequency: number) => void;
+  setFilterQ: (q: number) => void;
 
   // Internal playback state - not for direct user interaction
   _setCurrentStep: (step: number) => void;

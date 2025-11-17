@@ -31,6 +31,15 @@ export const useStore = create<StoreState>((set, get) => ({
   soundKits: SOUND_KITS,
   activeKitId: DEFAULT_KIT_ID,
 
+  // Master Effects State
+  effects: {
+    reverbAmount: 0.15,
+    delayAmount: 0.2,
+    delayTime: 0.5, // eighth note
+    filterFrequency: 20000, // fully open
+    filterQ: 1,
+  },
+
   setTempo: (tempo) => set({ tempo }),
   setSwing: (swing) => set({ swing }),
   
@@ -245,5 +254,36 @@ export const useStore = create<StoreState>((set, get) => ({
         })
       }));
     }
-  }
+  },
+
+  // Master Effects Controls
+  setReverbAmount: (amount: number) => {
+    set(state => ({
+      effects: { ...state.effects, reverbAmount: amount }
+    }));
+  },
+
+  setDelayAmount: (amount: number) => {
+    set(state => ({
+      effects: { ...state.effects, delayAmount: amount }
+    }));
+  },
+
+  setDelayTime: (time: number) => {
+    set(state => ({
+      effects: { ...state.effects, delayTime: time }
+    }));
+  },
+
+  setFilterFrequency: (frequency: number) => {
+    set(state => ({
+      effects: { ...state.effects, filterFrequency: frequency }
+    }));
+  },
+
+  setFilterQ: (q: number) => {
+    set(state => ({
+      effects: { ...state.effects, filterQ: q }
+    }));
+  },
 }));

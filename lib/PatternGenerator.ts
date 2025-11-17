@@ -7,6 +7,93 @@ const randInRange = (min: number, max: number) => Math.random() * (max - min) + 
 const choice = <T,>(arr: T[]): T => arr[Math.floor(rand(arr.length))];
 const prob = (p: number) => Math.random() < p;
 
+// --- ADVANCED PATTERN ALGORITHMS ---
+
+// Euclidean rhythm generator for mathematically perfect groove distribution
+function generateEuclideanRhythm(steps: number, pulses: number): boolean[] {
+    const pattern = new Array(steps).fill(false);
+    const bucket = new Array(steps).fill(0);
+
+    for (let i = 0; i < steps; i++) {
+        bucket[i] = Math.floor((i * pulses) / steps);
+    }
+
+    for (let i = 0; i < steps; i++) {
+        if (i === 0 || bucket[i] !== bucket[i - 1]) {
+            pattern[i] = true;
+        }
+    }
+
+    return pattern;
+}
+
+// Polyrhythmic pattern generator for complex rhythms
+function generatePolyrhythm(baseSteps: number, ratio: number): boolean[] {
+    const pattern = new Array(baseSteps).fill(false);
+    const polySteps = Math.floor(baseSteps / ratio);
+
+    for (let i = 0; i < polySteps; i++) {
+        const idx = Math.floor(i * ratio);
+        if (idx < baseSteps) pattern[idx] = true;
+    }
+
+    return pattern;
+}
+
+// Melodic contour generator for natural-sounding melodies
+type MelodicContour = 'ascending' | 'descending' | 'arch' | 'valley' | 'random';
+
+function generateMelodicLine(
+    length: number,
+    chordNotes: string[],
+    scaleRoot: string,
+    octave: number,
+    scale: number[],
+    contour: MelodicContour = 'arch'
+): string[] {
+    const melody: string[] = [];
+    const range = chordNotes.length + 3; // Extend beyond chord tones
+
+    for (let i = 0; i < length; i++) {
+        const progress = i / (length - 1);
+        let degree = 0;
+
+        switch (contour) {
+            case 'ascending':
+                degree = Math.floor(progress * range);
+                break;
+            case 'descending':
+                degree = Math.floor((1 - progress) * range);
+                break;
+            case 'arch':
+                degree = Math.floor(Math.sin(progress * Math.PI) * range);
+                break;
+            case 'valley':
+                degree = Math.floor((1 - Math.sin(progress * Math.PI)) * range);
+                break;
+            case 'random':
+                degree = Math.floor(Math.random() * range);
+                break;
+        }
+
+        melody.push(getNoteInScale(scaleRoot, octave, scale, degree));
+    }
+
+    return melody;
+}
+
+// Advanced groove/swing calculator with microtiming
+function calculateGrooveOffset(step: number, style: BeatStyle, variation: 'A' | 'B'): number {
+    const swingAmount = style === 'TRAP' ? 0.05 : style === 'DETROIT' ? 0.08 : 0.03;
+
+    // Add different swing on odd steps
+    if (step % 2 === 1) {
+        return swingAmount;
+    }
+
+    return 0;
+}
+
 // --- MUSIC THEORY ---
 const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const SCALES = {
@@ -111,65 +198,155 @@ export function generateNewPattern({ style, bars, tracks, variation = 'A' }: { s
     return builder.build();
 }
 
-// --- RHYTHM GENERATOR ---
+// --- ADVANCED RHYTHM GENERATOR ---
 function generateDrums(builder: PatternBuilder, bars: number, style: BeatStyle, variation: 'A' | 'B') {
      for (let bar = 0; bar < bars; bar++) {
         const barStart = bar * STEPS_PER_BAR;
 
-        // --- Shared logic ---
-        const snareStep = style === 'MAFIA' ? 4 : style === 'TRAP' ? 8 : 4;
-        const snareStep2 = style === 'MAFIA' || style === 'TRAP' ? -1 : 12;
-        builder.setStep('snare', barStart + snareStep, 1.0);
-        if(snareStep2 > 0) builder.setStep('snare', barStart + snareStep2, 0.9);
-        if(prob(0.3) && style !== 'TRAP') builder.setStep('snare', barStart + choice([7, 15]), 0.2); // ghost note
-
-        // --- Style-specific logic ---
+        // --- Style-specific logic with advanced algorithms ---
         switch(style) {
             case 'TRAP':
-                const kickPattern = variation === 'A' ? [0, 9] : [0, 6, 9, 14];
-                for (const step of kickPattern) builder.setStep('kick', barStart + step, 1.0);
+                // Use Euclidean rhythms for trap kick patterns
+                const kickPulses = variation === 'A' ? 3 : 5;
+                const kickEuclidean = generateEuclideanRhythm(STEPS_PER_BAR, kickPulses);
+                kickEuclidean.forEach((hit, i) => {
+                    if (hit) builder.setStep('kick', barStart + i, 1.0);
+                });
 
-                // Hi-hats every 8th note with rolls
+                // Advanced hi-hat patterns with triplet feels
                 for (let i = 0; i < STEPS_PER_BAR; i++) {
-                    if (i % 2 === 0) builder.setStep('hat', barStart + i, randInRange(0.5, 0.7));
-                }
-                if (prob(0.7)) { // Add a roll at the end of the bar
-                    const rollStart = choice([12, 13, 14]);
-                    const rollLength = choice([2, 3, 4]);
-                    for (let i = 0; i < rollLength; i++) {
-                        builder.setStep('hat', barStart + rollStart + i, randInRange(0.4, 0.6));
+                    if (i % 2 === 0) {
+                        const velocity = i % 4 === 0 ? 0.7 : 0.5;
+                        builder.setStep('hat', barStart + i, randInRange(velocity - 0.1, velocity + 0.1));
                     }
                 }
+
+                // Advanced trap rolls with acceleration
+                if (prob(0.8) && bar % 2 === 1) {
+                    const rollStart = choice([10, 12, 13]);
+                    const rollPattern = [1, 1, 2, 3]; // Accelerating intervals
+                    let offset = 0;
+                    for (const interval of rollPattern) {
+                        if (barStart + rollStart + offset < barStart + STEPS_PER_BAR) {
+                            builder.setStep('hat', barStart + rollStart + offset, randInRange(0.4, 0.6));
+                        }
+                        offset += interval;
+                    }
+                }
+
+                // Snare with variations
+                const trapSnareStep = 8;
+                builder.setStep('snare', barStart + trapSnareStep, 1.0);
+                if (variation === 'B' && prob(0.6)) {
+                    builder.setStep('snare', barStart + trapSnareStep - 1, 0.3); // flam
+                }
+                if (prob(0.3)) builder.setStep('clap', barStart + trapSnareStep, 0.8); // layer clap
+
                 if(prob(0.3)) builder.setStep('openhat', barStart + choice([6, 14]), 0.6);
                 break;
 
             case 'DETROIT':
-                const detroitKick = variation === 'A' ? [0, 6, 10] : [0, 3, 6, 10, 14];
-                for (const step of detroitKick) builder.setStep('kick', barStart + step, 1.0);
-                for (let i = 0; i < STEPS_PER_BAR; i++) { // Dense hats
-                    if (variation === 'B' || i % 2 === 0) builder.setStep('hat', barStart + i, 0.6);
+                // Detroit techno uses polyrhythmic kick patterns
+                const detroitPulses = variation === 'A' ? 5 : 7;
+                const detroitPattern = generateEuclideanRhythm(STEPS_PER_BAR, detroitPulses);
+                detroitPattern.forEach((hit, i) => {
+                    if (hit) builder.setStep('kick', barStart + i, 1.0);
+                });
+
+                // Relentless hi-hat pattern with subtle variations
+                const hatDensity = variation === 'B' ? 1 : 2;
+                for (let i = 0; i < STEPS_PER_BAR; i += hatDensity) {
+                    const accent = i % 4 === 0 ? 0.8 : 0.6;
+                    builder.setStep('hat', barStart + i, accent);
                 }
+
+                // Snare on 4 and 12 (backbeat)
+                builder.setStep('snare', barStart + 4, 1.0);
+                builder.setStep('snare', barStart + 12, 0.95);
+                if (prob(0.2)) builder.setStep('snare', barStart + choice([7, 15]), 0.25); // ghost
+
                 if (variation === 'B' && prob(0.5)) builder.setStep('openhat', barStart + 14, 0.7);
+                if (variation === 'B' && prob(0.4)) builder.setStep('perc', barStart + choice([2, 6, 10]), 0.5);
                 break;
+
             case 'FLINT':
-                const flintKick = variation === 'A' ? [0, 9, 13] : [0, 7, 11, 14];
+                // Flint groove with syncopation
+                const flintKick = variation === 'A' ? [0, 9, 13] : [0, 5, 7, 11, 14];
                 for (const step of flintKick) builder.setStep('kick', barStart + step, 1.0);
-                for (let i = 0; i < STEPS_PER_BAR; i += 2) builder.setStep('hat', barStart + i, 0.7);
+
+                // Call-and-response snare pattern
+                builder.setStep('snare', barStart + 4, 1.0);
+                builder.setStep('snare', barStart + 12, 0.9);
+                if (variation === 'B' && prob(0.7)) {
+                    builder.setStep('clap', barStart + 6, 0.5);
+                    builder.setStep('clap', barStart + 10, 0.5);
+                }
+
+                // Polyrhythmic hi-hats
+                const hatPoly = generatePolyrhythm(STEPS_PER_BAR, 3);
+                hatPoly.forEach((hit, i) => {
+                    if (hit) builder.setStep('hat', barStart + i, 0.7);
+                });
+
                 builder.setStep('perc', barStart + choice([3, 7, 11]), 0.8);
                 break;
+
             case 'CINEMATIC':
+                // Minimal, powerful kick
                 builder.setStep('kick', barStart, 1.0);
-                if (variation === 'B') builder.setStep('kick', barStart + 8, 0.8);
-                if (variation === 'B' && prob(0.6)) builder.setStep('kick', barStart + 10, 0.9);
-                for (let i = 0; i < STEPS_PER_BAR; i += 4) builder.setStep('hat', barStart + i, 0.5);
+                if (variation === 'B') {
+                    builder.setStep('kick', barStart + 8, 0.85);
+                    if (prob(0.6)) builder.setStep('kick', barStart + 10, 0.9);
+                }
+
+                // Sparse, dramatic snare
+                builder.setStep('snare', barStart + 4, 1.0);
+                if (variation === 'B') builder.setStep('snare', barStart + 12, 0.95);
+
+                // Minimal hi-hats
+                for (let i = 0; i < STEPS_PER_BAR; i += 4) {
+                    builder.setStep('hat', barStart + i, 0.5);
+                }
+
+                // Add tension with perc
+                if (variation === 'B' && prob(0.5)) {
+                    builder.setStep('perc', barStart + 14, 0.7);
+                }
                 break;
+
             case 'ROCK':
-                 for (let i = 0; i < STEPS_PER_BAR; i += 4) builder.setStep('kick', barStart + i, 1.0);
-                 for (let i = 0; i < STEPS_PER_BAR; i += 2) builder.setStep('hat', barStart + i, 0.7);
-                 if (prob(0.4)) builder.setStep('openhat', barStart + 14, 0.7);
+                // Classic rock beat
+                const rockKickPattern = [0, 8];
+                if (variation === 'B') rockKickPattern.push(6, 14);
+                for (const step of rockKickPattern) {
+                    builder.setStep('kick', barStart + step, 1.0);
+                }
+
+                // Rock backbeat
+                builder.setStep('snare', barStart + 4, 1.0);
+                builder.setStep('snare', barStart + 12, 1.0);
+
+                // Steady eighth-note hi-hats
+                for (let i = 0; i < STEPS_PER_BAR; i += 2) {
+                    builder.setStep('hat', barStart + i, 0.7);
+                }
+
+                if (prob(0.4)) builder.setStep('openhat', barStart + 14, 0.75);
                 break;
+
             case 'MAFIA':
-                builder.setStep('kick', barStart, 1.0); // Waltz kick
+                // Waltz pattern (3/4 feel in 4/4)
+                builder.setStep('kick', barStart, 1.0);
+
+                // Brush-style snare
+                builder.setStep('snare', barStart + 4, 0.4);
+
+                // Subtle hi-hat
+                if (variation === 'B') {
+                    for (let i = 0; i < STEPS_PER_BAR; i += 4) {
+                        builder.setStep('hat', barStart + i, 0.3);
+                    }
+                }
                 break;
         }
      }
@@ -213,24 +390,42 @@ function generateHarmonyAndMelody(builder: PatternBuilder, bars: number, style: 
            builder.setStep('strings', barStart, 0.7, padNote);
         }
         
-        // --- Melodic content ---
-        if (variation === 'A') { // Sparser A section
+        // --- Advanced Melodic Content with Contour-based Generation ---
+        if (variation === 'A') {
+            // Sparser A section with arpeggios
             const arpPattern = style === 'TRAP' ? [0, 4, 7, 10, 14] : [0, 4, 8, 12];
-            for (const step of arpPattern) {
-                if(prob(0.7)) builder.setStep('arp', barStart + step, 0.7, choice(chordNotes));
-            }
-        } else { // Denser B section
-             const melodyRhythm = style === 'TRAP' ? [0, 3, 6, 9, 12] : choice([[0, 6, 10], [0, 3, 7, 13], [0, 2, 4, 6, 8, 10, 12, 14]]);
-             for(const step of melodyRhythm) {
-                 if(prob(0.8)) builder.setStep('melody', barStart + step, 0.8, choice(chordNotes));
-             }
+            const arpNotes = generateMelodicLine(arpPattern.length, chordNotes, key, 5, scale, 'ascending');
+            arpPattern.forEach((step, idx) => {
+                if(prob(0.75)) {
+                    builder.setStep('arp', barStart + step, 0.7, arpNotes[idx]);
+                }
+            });
+        } else {
+            // Denser B section with advanced melodic development
+            const melodyRhythm = style === 'TRAP'
+                ? [0, 3, 6, 9, 12]
+                : choice([[0, 6, 10], [0, 3, 7, 13], [0, 2, 4, 6, 8, 10, 12, 14]]);
 
-             // Add lead line
-             const leadRhythm = [0, 6, 10];
-             const leadRoot = getNoteInScale(key, 5, scale, chord.degree);
-             for(const step of leadRhythm) {
-                 if(prob(0.6)) builder.setStep('lead', barStart + step, 0.9, leadRoot);
-             }
+            // Use melodic contour for natural-sounding melodies
+            const contour = choice<MelodicContour>(['arch', 'valley', 'ascending', 'descending']);
+            const melodyNotes = generateMelodicLine(melodyRhythm.length, chordNotes, key, 4, scale, contour);
+
+            melodyRhythm.forEach((step, idx) => {
+                if(prob(0.85)) {
+                    builder.setStep('melody', barStart + step, 0.8, melodyNotes[idx]);
+                }
+            });
+
+            // Add lead line with counter-melody (opposite contour)
+            const leadRhythm = style === 'CINEMATIC' ? [0, 8, 12] : [0, 6, 10];
+            const leadContour = contour === 'ascending' ? 'descending' : 'ascending';
+            const leadNotes = generateMelodicLine(leadRhythm.length, chordNotes, key, 5, scale, leadContour);
+
+            leadRhythm.forEach((step, idx) => {
+                if(prob(0.7)) {
+                    builder.setStep('lead', barStart + step, 0.9, leadNotes[idx]);
+                }
+            });
         }
     }
 }
