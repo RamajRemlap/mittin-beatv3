@@ -126,36 +126,73 @@ function generateDrums(builder: PatternBuilder, bars: number, style: BeatStyle, 
         // --- Style-specific logic ---
         switch(style) {
             case 'TRAP':
-                const kickPattern = variation === 'A' ? [0, 9] : [0, 6, 9, 14];
-                for (const step of kickPattern) builder.setStep('kick', barStart + step, 1.0);
+                const kickPattern = variation === 'A' ? [0, 9] : [0, 6, 9, 12, 14];
+                for (const step of kickPattern) builder.setStep('kick', barStart + step, randInRange(0.95, 1.1));
 
-                // Hi-hats every 8th note with rolls
+                // Hi-hats every 8th note with rolls - faster and more charged
                 for (let i = 0; i < STEPS_PER_BAR; i++) {
-                    if (i % 2 === 0) builder.setStep('hat', barStart + i, randInRange(0.5, 0.7));
+                    if (i % 2 === 0) builder.setStep('hat', barStart + i, randInRange(0.6, 0.8));
                 }
-                if (prob(0.7)) { // Add a roll at the end of the bar
-                    const rollStart = choice([12, 13, 14]);
-                    const rollLength = choice([2, 3, 4]);
+                // More frequent and aggressive hi-hat rolls
+                if (prob(0.85)) {
+                    const rollStart = choice([10, 11, 12, 13, 14]);
+                    const rollLength = choice([3, 4, 5, 6]);
                     for (let i = 0; i < rollLength; i++) {
-                        builder.setStep('hat', barStart + rollStart + i, randInRange(0.4, 0.6));
+                        const rollVel = randInRange(0.5, 0.75) * (1 - i / rollLength * 0.3);
+                        builder.setStep('hat', barStart + rollStart + i, rollVel);
                     }
                 }
-                if(prob(0.3)) builder.setStep('openhat', barStart + choice([6, 14]), 0.6);
+                // Snare rolls for Michigan bounce
+                if (variation === 'B' && prob(0.6)) {
+                    const snareRollStart = choice([6, 7, 14, 15]);
+                    for (let i = 0; i < 3; i++) {
+                        builder.setStep('snare', barStart + snareRollStart + i, randInRange(0.4, 0.7));
+                    }
+                }
+                if(prob(0.5)) builder.setStep('openhat', barStart + choice([6, 10, 14]), randInRange(0.6, 0.8));
                 break;
 
             case 'DETROIT':
-                const detroitKick = variation === 'A' ? [0, 6, 10] : [0, 3, 6, 10, 14];
-                for (const step of detroitKick) builder.setStep('kick', barStart + step, 1.0);
-                for (let i = 0; i < STEPS_PER_BAR; i++) { // Dense hats
-                    if (variation === 'B' || i % 2 === 0) builder.setStep('hat', barStart + i, 0.6);
+                const detroitKick = variation === 'A' ? [0, 6, 10, 13] : [0, 3, 6, 9, 10, 14];
+                for (const step of detroitKick) builder.setStep('kick', barStart + step, randInRange(0.95, 1.1));
+                // Dense hats with more variation and rolls
+                for (let i = 0; i < STEPS_PER_BAR; i++) {
+                    if (variation === 'B' || i % 2 === 0) builder.setStep('hat', barStart + i, randInRange(0.6, 0.8));
                 }
-                if (variation === 'B' && prob(0.5)) builder.setStep('openhat', barStart + 14, 0.7);
+                // Add hi-hat rolls for Detroit energy
+                if (prob(0.75)) {
+                    const rollPos = choice([11, 12, 13, 14, 15]);
+                    for (let i = 0; i < 4; i++) {
+                        builder.setStep('hat', barStart + rollPos + i, randInRange(0.5, 0.7));
+                    }
+                }
+                if (variation === 'B' && prob(0.7)) builder.setStep('openhat', barStart + choice([10, 14]), randInRange(0.7, 0.9));
+                // Add snare variations
+                if (prob(0.4)) builder.setStep('snare', barStart + choice([6, 10, 14]), randInRange(0.3, 0.5));
                 break;
             case 'FLINT':
-                const flintKick = variation === 'A' ? [0, 9, 13] : [0, 7, 11, 14];
-                for (const step of flintKick) builder.setStep('kick', barStart + step, 1.0);
-                for (let i = 0; i < STEPS_PER_BAR; i += 2) builder.setStep('hat', barStart + i, 0.7);
-                builder.setStep('perc', barStart + choice([3, 7, 11]), 0.8);
+                const flintKick = variation === 'A' ? [0, 9, 12, 13] : [0, 6, 7, 11, 13, 14];
+                for (const step of flintKick) builder.setStep('kick', barStart + step, randInRange(0.95, 1.15));
+                // Flint bounce pattern - syncopated hats
+                for (let i = 0; i < STEPS_PER_BAR; i += 2) {
+                    builder.setStep('hat', barStart + i, randInRange(0.7, 0.85));
+                }
+                // Add triplet-feel hi-hat fills
+                if (variation === 'B' || prob(0.7)) {
+                    const hatFills = choice([[10, 11, 12], [13, 14, 15], [5, 6, 7]]);
+                    for (const step of hatFills) {
+                        builder.setStep('hat', barStart + step, randInRange(0.5, 0.7));
+                    }
+                }
+                // Snare rolls for Flint style
+                if (prob(0.65)) {
+                    const snareRoll = choice([[13, 14, 15], [6, 7]]);
+                    for (const step of snareRoll) {
+                        builder.setStep('snare', barStart + step, randInRange(0.4, 0.6));
+                    }
+                }
+                builder.setStep('perc', barStart + choice([3, 7, 11]), randInRange(0.8, 1.0));
+                if (prob(0.4)) builder.setStep('openhat', barStart + choice([10, 14]), 0.7);
                 break;
             case 'CINEMATIC':
                 builder.setStep('kick', barStart, 1.0);
@@ -191,11 +228,28 @@ function generateHarmonyAndMelody(builder: PatternBuilder, bars: number, style: 
             builder.setStep('bass', barStart + 4, 0.8, fifthNote);
             builder.setStep('bass', barStart + 8, 0.8, fifthNote);
         } else if (style === 'TRAP') {
-            const bassRhythm = variation === 'A' ? [0, 8] : [0, 6, 9, 14];
+            const bassRhythm = variation === 'A' ? [0, 9, 12] : [0, 6, 9, 12, 14];
             for (const step of bassRhythm) {
                  const currentChord = barChords[Math.floor((bar*STEPS_PER_BAR + step) / STEPS_PER_BAR)];
                  const note = getNoteInScale(key, 2, scale, currentChord.degree);
-                 builder.setStep('bass', barStart + step, 1.0, note);
+                 builder.setStep('bass', barStart + step, randInRange(0.95, 1.1), note);
+            }
+            // Add bass slides for Michigan style
+            if (variation === 'B' && prob(0.5)) {
+                const slideNote = getNoteInScale(key, 2, scale, chord.degree - 1);
+                builder.setStep('bass', barStart + 13, 0.7, slideNote);
+            }
+        } else if (style === 'DETROIT' || style === 'FLINT') {
+            // More aggressive bass following kicks
+            const kickStep = builder.getStep('kick', barStart);
+            if (kickStep?.isActive) builder.setStep('bass', barStart, randInRange(1.0, 1.15), bassNote);
+            // Add more bass hits for bounce
+            const bassOffbeats = variation === 'A' ? [9, 13] : [6, 9, 10, 13, 14];
+            for (const step of bassOffbeats) {
+                const kickAtStep = builder.getStep('kick', barStart + step);
+                if (kickAtStep?.isActive && prob(0.8)) {
+                    builder.setStep('bass', barStart + step, randInRange(0.9, 1.05), bassNote);
+                }
             }
         } else {
              const kickStep = builder.getStep('kick', barStart);

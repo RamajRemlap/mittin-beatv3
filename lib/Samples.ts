@@ -52,52 +52,94 @@ function writeString(view: DataView, offset: number, string: string) {
 
 // --- Placeholder Sample Generation ---
 function generateKick(sampleRate: number): string {
-    const duration = 0.15;
+    const duration = 0.25;
     const length = sampleRate * duration;
     const data = new Float32Array(length);
     for (let i = 0; i < length; i++) {
         const t = i / sampleRate;
-        const freq = 150 * Math.exp(-t * 25);
-        const amp = Math.exp(-t * 20);
-        data[i] = Math.sin(2 * Math.PI * freq * t) * amp;
+        // Harder hitting kick with lower fundamental and punch
+        const freq = 55 * Math.exp(-t * 18); // Lower starting freq for sub bass
+        const amp = Math.exp(-t * 12);
+        const click = Math.exp(-t * 180) * 0.4; // Transient click
+        // Add harmonic for punch
+        const harmonic = Math.sin(2 * Math.PI * freq * 2 * t) * 0.2 * amp;
+        const fundamental = Math.sin(2 * Math.PI * freq * t) * amp;
+        // Soft clipping for saturation
+        let sample = fundamental + harmonic + click;
+        sample = Math.tanh(sample * 2.5) * 0.95;
+        data[i] = sample;
     }
     return createWavFile(data, sampleRate);
 }
 
 function generateSnare(sampleRate: number): string {
-    const duration = 0.18;
+    const duration = 0.22;
     const length = sampleRate * duration;
     const data = new Float32Array(length);
     for (let i = 0; i < length; i++) {
-        const amp = Math.exp(-i / (sampleRate * 0.08));
-        data[i] = (Math.random() * 2 - 1) * amp;
+        const t = i / sampleRate;
+        const amp = Math.exp(-t * 12);
+        // White noise for snare body
+        const noise = (Math.random() * 2 - 1) * amp;
+        // Tonal component for 909-style snap
+        const tone1 = Math.sin(2 * Math.PI * 180 * t) * amp * 0.6;
+        const tone2 = Math.sin(2 * Math.PI * 330 * t) * amp * 0.4;
+        // Transient snap
+        const snap = Math.exp(-t * 200) * 0.7;
+        let sample = noise + tone1 + tone2 + snap;
+        // Saturation for character
+        sample = Math.tanh(sample * 2.2) * 0.9;
+        data[i] = sample;
     }
     return createWavFile(data, sampleRate);
 }
 
 function generateHat(sampleRate: number): string {
-    const duration = 0.05;
+    const duration = 0.08;
     const length = sampleRate * duration;
     const data = new Float32Array(length);
     for (let i = 0; i < length; i++) {
-        data[i] = Math.random() * 2 - 1; // white noise
+        const t = i / sampleRate;
+        const amp = Math.exp(-t * 45);
+        // Metallic harmonics for 909-style hat
+        let sample = 0;
+        const freqs = [187, 223, 296, 364, 587, 693];
+        for (const freq of freqs) {
+            sample += Math.sin(2 * Math.PI * freq * t) * (Math.random() * 0.3 + 0.7);
+        }
+        sample = sample / freqs.length;
+        // Add noise for texture
+        sample += (Math.random() * 2 - 1) * 0.4;
+        sample = sample * amp;
+        data[i] = sample * 0.7;
     }
-    // High-pass filter simulation
+    // High-pass filter
     for (let i = 1; i < length; i++) {
-       data[i] = 0.8 * (data[i] - data[i-1]);
+       data[i] = 0.85 * (data[i] - data[i-1]);
     }
     return createWavFile(data, sampleRate);
 }
 
 function generate808(sampleRate: number): string {
-    const duration = 1.5;
+    const duration = 2.0;
     const length = sampleRate * duration;
     const data = new Float32Array(length);
-    const freq = 65.41; // C2
+    const freq = 55; // Deep A1 for harder hitting sub bass
     for (let i = 0; i < length; i++) {
         const t = i / sampleRate;
-        const amp = Math.exp(-t * 2.5);
-        data[i] = Math.sin(2 * Math.PI * freq * t) * amp;
+        const amp = Math.exp(-t * 1.8);
+        // Layered sine waves for thick 808
+        const sub = Math.sin(2 * Math.PI * freq * t) * amp;
+        const harmonic2 = Math.sin(2 * Math.PI * freq * 2 * t) * amp * 0.3;
+        const harmonic3 = Math.sin(2 * Math.PI * freq * 3 * t) * amp * 0.15;
+        // Pitch bend for classic 808 slide
+        const pitchEnv = 1 + Math.exp(-t * 25) * 0.5;
+        const bendedFreq = freq * pitchEnv;
+        const mainOsc = Math.sin(2 * Math.PI * bendedFreq * t) * amp;
+        let sample = mainOsc + harmonic2 + harmonic3;
+        // Saturation for warmth and punch
+        sample = Math.tanh(sample * 2.8) * 1.1;
+        data[i] = sample;
     }
     return createWavFile(data, sampleRate);
 }

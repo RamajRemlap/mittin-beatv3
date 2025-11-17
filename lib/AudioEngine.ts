@@ -158,23 +158,27 @@ export class AudioEngine {
             // --- Kicks ---
             case 'kick_808':
             case 'kick_grit':
-                duration = 0.15;
+                duration = 0.25;
+                // Harder hitting kick with sub bass
                 if (activeInstrumentId === 'kick_grit') {
                     const gritOsc = this.audioContext.createOscillator();
                     gritOsc.type = 'square';
-                    gritOsc.frequency.setValueAtTime(150, time);
-                    gritOsc.frequency.exponentialRampToValueAtTime(0.01, time + duration * 0.7);
+                    gritOsc.frequency.setValueAtTime(120, time);
+                    gritOsc.frequency.exponentialRampToValueAtTime(0.01, time + duration * 0.6);
                     const gritGain = this.audioContext.createGain();
-                    gritGain.gain.setValueAtTime(volume * 0.3, time);
-                    gritGain.gain.exponentialRampToValueAtTime(0.01, time + duration * 0.7);
+                    gritGain.gain.setValueAtTime(volume * 0.4, time);
+                    gritGain.gain.exponentialRampToValueAtTime(0.01, time + duration * 0.6);
                     gritOsc.connect(gritGain).connect(pannerNode);
                     gritOsc.start(time);
                     gritOsc.stop(time + duration);
                 }
-                osc.frequency.setValueAtTime(150, time);
-                osc.frequency.exponentialRampToValueAtTime(0.01, time + duration);
-                gainNode.gain.setValueAtTime(volume, time);
+                // Lower frequency for harder sub bass
+                osc.frequency.setValueAtTime(65, time);
+                osc.frequency.exponentialRampToValueAtTime(0.01, time + duration * 0.85);
+                gainNode.gain.setValueAtTime(volume * 1.2, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + duration);
+                // Add click transient
+                this.playNoise(0.005, time, volume * 0.3, pan, 'highpass', 8000);
                 break;
             case 'kick_rock':
                 duration = 0.15;
@@ -187,14 +191,18 @@ export class AudioEngine {
             // --- Snares & Claps ---
             case 'snare_808':
             case 'snare_noisy':
-                duration = 0.1;
-                const noiseVolume = activeInstrumentId === 'snare_noisy' ? volume * 1.0 : volume * 0.8;
-                const noiseFilterFreq = activeInstrumentId === 'snare_noisy' ? 1500 : 1000;
+                duration = 0.18;
+                const noiseVolume = activeInstrumentId === 'snare_noisy' ? volume * 1.2 : volume * 1.0;
+                const noiseFilterFreq = activeInstrumentId === 'snare_noisy' ? 2000 : 1200;
                 this.playNoise(duration, time, noiseVolume, pan, 'highpass', noiseFilterFreq);
-                osc.frequency.setValueAtTime(440, time);
-                osc.frequency.exponentialRampToValueAtTime(220, time + duration);
-                gainNode.gain.setValueAtTime(volume, time);
+                // 909-style tonal snap
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(180, time);
+                osc.frequency.exponentialRampToValueAtTime(160, time + duration * 0.5);
+                gainNode.gain.setValueAtTime(volume * 1.1, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + duration);
+                // Add snap transient
+                this.playNoise(0.01, time, volume * 0.5, pan, 'highpass', 6000);
                 break;
             case 'snare_rock':
                 duration = 0.18;
@@ -264,22 +272,34 @@ export class AudioEngine {
             case 'bass_808':
             case 'bass_saw':
             case 'bass_sub':
-                duration = 0.3;
+                duration = 0.5;
                 if (note) {
                     const freq = noteToFrequency(note);
                     if (activeInstrumentId === 'bass_saw') {
                         osc.type = 'sawtooth';
                         const filter = this.audioContext.createBiquadFilter();
                         filter.type = 'lowpass';
-                        filter.frequency.setValueAtTime(freq * 2.5, time);
-                        filter.Q.value = 1.2;
+                        filter.frequency.setValueAtTime(freq * 3, time);
+                        filter.frequency.exponentialRampToValueAtTime(freq * 1.5, time + duration);
+                        filter.Q.value = 2.5;
                         osc.connect(filter);
                         filter.connect(gainNode);
                     } else {
                          osc.type = 'sine';
+                         // Add harmonics for thicker 808
+                         const harmonic2 = this.audioContext.createOscillator();
+                         harmonic2.type = 'sine';
+                         harmonic2.frequency.setValueAtTime(freq * 2, time);
+                         const harmonic2Gain = this.audioContext.createGain();
+                         harmonic2Gain.gain.setValueAtTime(volume * 0.25, time);
+                         harmonic2Gain.gain.linearRampToValueAtTime(0.001, time + duration);
+                         harmonic2.connect(harmonic2Gain).connect(pannerNode);
+                         harmonic2.start(time);
+                         harmonic2.stop(time + duration);
                     }
                     osc.frequency.setValueAtTime(freq, time);
-                    gainNode.gain.setValueAtTime(volume, time);
+                    gainNode.gain.setValueAtTime(volume * 1.2, time);
+                    gainNode.gain.linearRampToValueAtTime(volume * 0.8, time + duration * 0.3);
                     gainNode.gain.linearRampToValueAtTime(0.001, time + duration);
                 } else {
                     playOsc = false;

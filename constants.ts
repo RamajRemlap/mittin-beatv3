@@ -2,8 +2,8 @@ import { Track, Preset, BeatStyle, SoundKit, Instrument, SongSection } from './t
 
 export const STEPS_PER_BAR = 16;
 export const DEFAULT_BARS = 4;
-export const DEFAULT_TEMPO = 160;
-export const DEFAULT_SWING = 0.5; // Trap doesn't swing much
+export const DEFAULT_TEMPO = 155; // Michigan/Flint sweet spot (140-170)
+export const DEFAULT_SWING = 0.52; // Slight swing for bounce
 
 export const INSTRUMENTS: Record<string, Instrument> = {
   // Drums (Synth)
@@ -146,9 +146,11 @@ export const CHORD_PROGRESSIONS: Record<BeatStyle, { A: Progression[], B: Progre
     TRAP: {
         A: [
              [{degree: 0, type: 'm'}, {degree: 5, type: 'M'}, {degree: 6, type: 'M'}, {degree: 3, type: 'M'}], // i-VI-VII-IV
+             [{degree: 0, type: 'm'}, {degree: 3, type: 'M'}, {degree: 6, type: 'M'}, {degree: 6, type: 'M'}], // i-IV-VII-VII (darker)
         ],
         B: [
             [{degree: 0, type: 'm'}, {degree: 0, type: 'm'}, {degree: 5, type: 'M'}, {degree: 6, type: 'M'}], // i-i-VI-VII
+            [{degree: 0, type: 'm'}, {degree: 2, type: 'M'}, {degree: 5, type: 'M'}, {degree: 6, type: 'M'}], // i-III-VI-VII (tension)
         ],
     },
     CINEMATIC: {
@@ -163,20 +165,24 @@ export const CHORD_PROGRESSIONS: Record<BeatStyle, { A: Progression[], B: Progre
         A: [
             [{degree: 0, type: 'm'}, {degree: 5, type: 'M'}, {degree: 6, type: 'M'}, {degree: 0, type: 'm'}], // i-VI-VII-i
             [{degree: 0, type: 'm'}, {degree: 3, type: 'M'}, {degree: 6, type: 'M'}, {degree: 5, type: 'M'}], // i-IV-VII-VI
+            [{degree: 0, type: 'm'}, {degree: 6, type: 'M'}, {degree: 3, type: 'M'}, {degree: 5, type: 'M'}], // i-VII-IV-VI (modern variation)
         ],
         B: [
             [{degree: 0, type: 'm'}, {degree: 4, type: 'm'}, {degree: 5, type: 'M'}, {degree: 3, type: 'M'}], // i-v-VI-IV
             [{degree: 6, type: 'M'}, {degree: 5, type: 'M'}, {degree: 3, type: 'M'}, {degree: 0, type: 'm'}], // VII-VI-IV-i
+            [{degree: 0, type: 'm'}, {degree: 2, type: 'M'}, {degree: 6, type: 'M'}, {degree: 5, type: 'M'}], // i-III-VII-VI (energetic)
         ],
     },
     FLINT: {
         A: [
             [{degree: 0, type: 'm'}, {degree: 3, type: 'M'}, {degree: 4, type: 'm'}, {degree: 0, type: 'm'}], // i-IV-v-i
             [{degree: 0, type: 'm'}, {degree: 5, type: 'M'}, {degree: 3, type: 'M'}, {degree: 4, type: 'm'}], // i-VI-IV-v
+            [{degree: 0, type: 'm'}, {degree: 6, type: 'M'}, {degree: 5, type: 'M'}, {degree: 4, type: 'm'}], // i-VII-VI-v (modern bounce)
         ],
         B: [
             [{degree: 0, type: 'm'}, {degree: 5, type: 'M'}, {degree: 1, type: 'dim'}, {degree: 4, type: 'm'}], // i-VI-ii°-v
             [{degree: 3, type: 'M'}, {degree: 4, type: 'm'}, {degree: 0, type: 'm'}, {degree: 5, type: 'M'}], // IV-v-i-VI
+            [{degree: 0, type: 'm'}, {degree: 2, type: 'M'}, {degree: 3, type: 'M'}, {degree: 6, type: 'M'}], // i-III-IV-VII (charged)
         ],
     },
     ROCK: {
