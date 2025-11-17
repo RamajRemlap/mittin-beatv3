@@ -1,0 +1,7 @@
+{
+  "name": "MittenBeats",
+  "description": "A Detroit/Flint style beat maker that runs entirely in your browser. Create authentic Michigan-style rhythms with a step sequencer, pattern generator, and built-in sound kits. Export your creations as WAV or MIDI.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
