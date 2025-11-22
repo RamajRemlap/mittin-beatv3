@@ -1,13 +1,13 @@
 import { create } from 'zustand';
-import { StoreState, BeatStyle, Step, Preset, SongSection } from '../types';
-import { 
-  INITIAL_TRACKS, 
-  STEPS_PER_BAR, 
-  DEFAULT_TEMPO, 
-  DEFAULT_SWING, 
-  createEmptyPattern, 
-  PRESETS, 
-  SOUND_KITS, 
+import { StoreState, BeatStyle, Step, Preset, SongSection, SavedSong } from '../types';
+import {
+  INITIAL_TRACKS,
+  STEPS_PER_BAR,
+  DEFAULT_TEMPO,
+  DEFAULT_SWING,
+  createEmptyPattern,
+  PRESETS,
+  SOUND_KITS,
   DEFAULT_KIT_ID,
   INITIAL_SECTIONS,
   INITIAL_ARRANGEMENT,
@@ -17,6 +17,9 @@ import { generateNewPattern } from '../lib/PatternGenerator';
 
 let sectionIdCounter = 0;
 const generateSectionId = () => `section_${Date.now()}_${sectionIdCounter++}`;
+
+let songIdCounter = 0;
+const generateSongId = () => `song_${Date.now()}_${songIdCounter++}`;
 
 export const useStore = create<StoreState>((set, get) => ({
   isPlaying: false,
@@ -30,6 +33,11 @@ export const useStore = create<StoreState>((set, get) => ({
   presets: PRESETS,
   soundKits: SOUND_KITS,
   activeKitId: DEFAULT_KIT_ID,
+
+  // Playlist state
+  savedSongs: [],
+  selectedSongId: null,
+  isExporting: false,
 
   setTempo: (tempo) => set({ tempo }),
   setSwing: (swing) => set({ swing }),
@@ -245,5 +253,67 @@ export const useStore = create<StoreState>((set, get) => ({
         })
       }));
     }
-  }
+  },
+
+  // Playlist actions
+  saveSong: (name: string, style: BeatStyle) => {
+    const { tempo, sections, arrangement, tracks } = get();
+    const newSong: SavedSong = {
+      id: generateSongId(),
+      name,
+      style,
+      tempo,
+      createdAt: Date.now(),
+      sections: JSON.parse(JSON.stringify(sections)),
+      arrangement: [...arrangement],
+      tracks: JSON.parse(JSON.stringify(tracks)),
+    };
+    set(state => ({
+      savedSongs: [newSong, ...state.savedSongs],
+      selectedSongId: newSong.id,
+    }));
+  },
+
+  loadSong: (songId: string) => {
+    const song = get().savedSongs.find(s => s.id === songId);
+    if (!song) return;
+
+    set({
+      tempo: song.tempo,
+      sections: JSON.parse(JSON.stringify(song.sections)),
+      arrangement: [...song.arrangement],
+      tracks: JSON.parse(JSON.stringify(song.tracks)),
+      activeSectionId: song.arrangement[0] || null,
+      selectedSongId: songId,
+      isPlaying: false,
+      currentStep: -1,
+    });
+  },
+
+  deleteSong: (songId: string) => {
+    set(state => {
+      const song = state.savedSongs.find(s => s.id === songId);
+      if (song?.audioUrl) {
+        URL.revokeObjectURL(song.audioUrl);
+      }
+      return {
+        savedSongs: state.savedSongs.filter(s => s.id !== songId),
+        selectedSongId: state.selectedSongId === songId ? null : state.selectedSongId,
+      };
+    });
+  },
+
+  setSelectedSongId: (songId: string | null) => set({ selectedSongId: songId }),
+
+  setSongAudio: (songId: string, blob: Blob, url: string) => {
+    set(state => ({
+      savedSongs: state.savedSongs.map(song =>
+        song.id === songId
+          ? { ...song, audioBlob: blob, audioUrl: url }
+          : song
+      ),
+    }));
+  },
+
+  setIsExporting: (isExporting: boolean) => set({ isExporting }),
 }));
